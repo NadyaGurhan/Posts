@@ -1,5 +1,5 @@
 import { useState, useEffect, type JSX } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { PostsApi } from '../../services/PostsApi';
 import type { Post } from '../../types/posts';
 import styles from './PostPage.module.css';
@@ -7,8 +7,13 @@ import styles from './PostPage.module.css';
 //Страница для просмотра одного поста
 export function PostPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();//id из url с помощью хука useParams
+  const location = useLocation();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true); //Загрузка
+  
+  // Получаем сохраненную страницу и лимит из state, если они есть, чтобы при нажатии на кнопку назад переход осуществлялся на ту же страницу, где расположен пост, подробности которого смотрел пользователь
+  const savedPage = location.state?.page || 1;
+  const savedLimit = location.state?.limit || 10;
 
   //подтягиваю 1 пост
   useEffect(() => {
@@ -31,7 +36,7 @@ export function PostPage(): JSX.Element {
 
   return (
     <div className={styles.container}>
-      <Link to="/">← Назад</Link>
+      <Link to={`/?_page=${savedPage}&_limit=${savedLimit}`}>← Назад</Link>
       <article className={styles.post}>
         <img 
           src={`https://picsum.photos/800/400?random=${post.id}`} // решила чуть симпатичнее сделать отображение, поэтому добавила рандомную картинку
